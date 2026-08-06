@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>An Unseen Story</title>
+    <style>
+        :root {
+            --bg-color: #050505;
+            --text-color: #f1f1f1;
+            --text-muted: #888888;
+            --transition-speed: 1.5s;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            overflow-x: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        #audio-control {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: var(--text-muted);
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            transition: all 0.5s ease;
+            z-index: 1000;
+        }
+
+        #audio-control:hover {
+            border-color: var(--text-color);
+            color: var(--text-color);
+        }
+
+        .scene {
+            position: absolute;
+            width: 80%;
+            max-width: 800px;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity var(--transition-speed) ease-in-out, visibility var(--transition-speed) ease-in-out;
+            transform: translateY(10px);
+        }
+
+        .scene.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        p {
+            font-weight: 300;
+            font-size: 1.8rem;
+            line-height: 1.8;
+            letter-spacing: 1px;
+            color: var(--text-color);
+        }
+
+        .muted {
+            color: var(--text-muted);
+            font-size: 1.4rem;
+        }
+
+        .hint {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.75rem;
+            letter-spacing: 3px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            opacity: 0.6;
+            animation: pulse 3s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.3; }
+            50% { opacity: 0.8; }
+            100% { opacity: 0.3; }
+        }
+    </style>
+</head>
+<body>
+
+    <button id="audio-control" onclick="toggleAudio()">Sound: Off</button>
+    <div class="hint" id="scroll-hint">Scroll or Press Space</div>
+
+    <div class="scene active" data-index="0">
+        <p>Before you scroll further...</p>
+        <p class="muted" style="margin-top: 20px;">Take one deep breath.</p>
+    </div>
+
+    <div class="scene" data-index="1">
+        <p>How long has it been since someone asked how you truly feel...</p>
+        <p class="muted" style="margin-top: 20px;">and actually waited for the answer?</p>
+    </div>
+
+    <div class="scene" data-index="2">
+        <p>We spend our lives surrounded by people,</p>
+        <p class="muted" style="margin-top: 20px;">yet carry our heaviest silencies entirely alone.</p>
+    </div>
+
+    <div class="scene" data-index="3">
+        <p>Think about the words you swallowed.</p>
+        <p class="muted" style="margin-top: 20px;">The apologies you never received. The love you were too afraid to name.</p>
+    </div>
+
+    <div class="scene" data-index="4">
+        <p>Where did the version of you go...</p>
+        <p class="muted" style="margin-top: 20px;">the one that believed anything was possible?</p>
+    </div>
+
+    <div class="scene" data-index="5">
+        <p>Perhaps you are not falling behind.</p>
+        <p class="muted" style="margin-top: 20px;">Perhaps you are simply unlearning the expectations of a world that doesn't know your heart.</p>
+    </div>
+
+    <div class="scene" data-index="6">
+        <p>Every person passing you right now is fighting an invisible battle.</p>
+        <p class="muted" style="margin-top: 20px;">Just like you.</p>
+    </div>
+
+    <div class="scene" data-index="7">
+        <p>Your story isn't over.</p>
+        <p class="muted" style="margin-top: 20px;">Choose gentleness. Choose understanding.</p>
+    </div>
+
+    <div class="scene" data-index="8">
+        <p>A single act of kindness can rewrite someone's entire day.</p>
+        <p class="muted" style="margin-top: 20px;">Sometimes, it is enough just to stay.</p>
+    </div>
+
+    <!-- Soft Ambient Piano Synthesizer Audio Context Placeholder -->
+    <script>
+        let currentScene = 0;
+        const scenes = document.querySelectorAll('.scene');
+        const hint = document.getElementById('scroll-hint');
+        let audioCtx = null;
+        let isPlaying = false;
+        let timer = null;
+
+        function showScene(index) {
+            scenes.forEach(scene => scene.classList.remove('active'));
+            if (index < scenes.length) {
+                scenes[index].classList.add('active');
+                currentScene = index;
+                if (index === scenes.length - 1) {
+                    hint.style.display = 'none';
+                }
+            }
+        }
+
+        function nextScene() {
+            if (currentScene < scenes.length - 1) {
+                showScene(currentScene + 1);
+            }
+        }
+
+        window.addEventListener('wheel', (e) => {
+            if (e.deltaY > 0) {
+                nextScene();
+            }
+        });
+
+        window.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' || e.code === 'ArrowDown') {
+                e.preventDefault();
+                nextScene();
+            }
+        });
+
+        // Web Audio API Soft Piano Atmosphere generator
+        function toggleAudio() {
+            const btn = document.getElementById('audio-control');
+            if (!isPlaying) {
+                try {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    playAmbientNotes();
+                    isPlaying = true;
+                    btn.textContent = "Sound: On";
+                } catch(e) {
+                    console.log("Audio not supported");
+                }
+            } else {
+                if (audioCtx) {
+                    audioCtx.suspend();
+                }
+                isPlaying = false;
+                btn.textContent = "Sound: Off";
+            }
+        }
+
+        function playAmbientNotes() {
+            if (!isPlaying && audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            if (!isPlaying) return;
+
+            const frequencies = [220.00, 261.63, 329.63, 392.00, 440.00, 523.25]; // A minor chord tones
+            const freq = frequencies[Math.floor(Math.random() * frequencies.length)];
+
+            let osc = audioCtx.createOscillator();
+            let gain = audioCtx.createGain();
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+
+            gain.gain.setValueAtTime(0, audioCtx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.08, audioCtx.currentTime + 2);
+            gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 8);
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            osc.start();
+            osc.stop(audioCtx.currentTime + 8);
+
+            timer = setTimeout(playAmbientNotes, 4000);
+        }
+    </script>
+</body>
+</html>
